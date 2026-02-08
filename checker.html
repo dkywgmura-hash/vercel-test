@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Today Checker</title>
+  <style>
+    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.6;}
+    .card{border:1px solid #ddd; border-radius:12px; padding:16px; margin:12px 0;}
+    .row{display:grid; gap:10px;}
+    .muted{color:#666;}
+    .big{font-size:28px; font-weight:700;}
+    .bar{height:12px; background:#eee; border-radius:999px; overflow:hidden;}
+    .fill{height:100%; width:0%; background:#111; transition:width .2s ease;}
+    label{display:block; padding:6px 0;}
+    button{font:inherit; padding:10px 12px; border:1px solid #111; border-radius:10px; background:#111; color:#fff; cursor:pointer;}
+    a{display:inline-block; margin-top:12px;}
+  </style>
+</head>
+<body>
+  <h1>Today Checker</h1>
+
+  <div class="card">
+    <div class="muted">今日</div>
+    <div class="big" id="today">----</div>
+    <div class="muted" id="weekday">-</div>
+  </div>
+
+  <div class="card row" id="checks">
+    <label><input type="checkbox" data-key="wake"> 起床後1時間以内に行動開始できた</label>
+    <label><input type="checkbox" data-key="focus"> 重要タスクを25分以上進めた</label>
+    <label><input type="checkbox" data-key="body"> 体を5分以上動かした</label>
+    <label><input type="checkbox" data-key="food"> 食事を整えて食べ過ぎを避けた</label>
+    <label><input type="checkbox" data-key="reflect"> 1行でも振り返りを書いた</label>
+  </div>
+
+  <div class="card row">
+    <div class="muted">達成率</div>
+    <div class="bar"><div id="fill" class="fill"></div></div>
+    <div id="score" class="big">0 / 5</div>
+    <div id="comment" class="muted">まず1つチェックを付けましょう。</div>
+    <button id="resetBtn" type="button">今日のチェックをリセット</button>
+  </div>
+
+  <a href="./index.html">← メニューに戻る</a>
+
+  <script>
+    const todayEl = document.getElementById("today");
+    const weekdayEl = document.getElementById("weekday");
+    const fillEl = document.getElementById("fill");
+    const scoreEl = document.getElementById("score");
+    const commentEl = document.getElementById("comment");
+    const resetBtn = document.getElementById("resetBtn");
+    const boxes = Array.from(document.querySelectorAll("input[type='checkbox']"));
+
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const key = `today-checker-${y}${m}${day}`;
+    const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+
+    todayEl.textContent = `${y}-${m}-${day}`;
+    weekdayEl.textContent = `(${weekdays[d.getDay()]})`;
+
+    function load(){
+      const saved = localStorage.getItem(key);
+      if (!saved) return;
+      const data = JSON.parse(saved);
+      boxes.forEach(box => {
+        box.checked = Boolean(data[box.dataset.key]);
+      });
+    }
+
+    function save(){
+      const data = {};
+      boxes.forEach(box => {
+        data[box.dataset.key] = box.checked;
+      });
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function update(){
+      const checked = boxes.filter(b => b.checked).length;
+      const total = boxes.length;
+      const pct = Math.round((checked / total) * 100);
+      fillEl.style.width = `${pct}%`;
+      scoreEl.textContent = `${checked} / ${total}`;
+
+      if (checked === total) {
+        commentEl.textContent = "フル達成です。明日の自分が楽になります。";
+      } else if (checked >= 3) {
+        commentEl.textContent = "合格ライン。あと1つ積むと安定しやすいです。";
+      } else if (checked >= 1) {
+        commentEl.textContent = "積み上げ中。小さく続けるのが最短です。";
+      } else {
+        commentEl.textContent = "まず1つチェックを付けましょう。";
+      }
+    }
+
+    boxes.forEach(box => {
+      box.addEventListener("change", () => {
+        save();
+        update();
+      });
+    });
+
+    resetBtn.addEventListener("click", () => {
+      boxes.forEach(box => {
+        box.checked = false;
+      });
+      localStorage.removeItem(key);
+      update();
+    });
+
+    load();
+    update();
+  </script>
+</body>
+</html>
