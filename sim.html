@@ -5,51 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>軽量シミュレーター</title>
   <style>
-    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.6;}
-    .card{border:1px solid #ddd; border-radius:12px; padding:16px; margin:12px 0;}
-    .grid{display:grid; gap:10px;}
-    label{font-weight:600;}
-    input{font:inherit; padding:10px; border:1px solid #ccc; border-radius:10px; width:100%; box-sizing:border-box;}
-    .big{font-size:30px; font-weight:700;}
-    .muted{color:#666;}
-    .warn{color:#a64200;}
-    .ok{color:#0a7a2f;}
-    a{display:inline-block; margin-top:12px;}
-    @media (min-width:720px){
-      .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-    }
+    :root{--bg:#f6f7fb;--card:#fff;--line:#dfe3eb;--text:#1e2430;--muted:#5f6777;--accent:#1f5eff;--warn:#a64200;--ok:#0a7a2f;}
+    *{box-sizing:border-box;} body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);}
+    .wrap{max-width:900px;margin:0 auto;padding:20px 16px 40px;} h1{margin:0 0 8px;font-size:28px;} .sub{margin:0 0 14px;color:var(--muted);}
+    .card{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px;margin:12px 0;} .grid{display:grid;gap:10px;}
+    label{font-weight:600;} input{font:inherit;padding:10px;border:1px solid #cfd6e4;border-radius:10px;width:100%;}
+    .big{font-size:30px;font-weight:800;} .muted{color:var(--muted);} .warn{color:var(--warn);} .ok{color:var(--ok);}
+    .nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;} .nav a{font-size:14px;color:var(--accent);text-decoration:none;}
+    @media (min-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
   </style>
 </head>
 <body>
-  <h1>軽量シミュレーター</h1>
+  <main class="wrap">
+    <h1>軽量シミュレーター</h1>
+    <p class="sub">目標値までの距離を、実行率を含めて現実的に試算します。</p>
 
-  <div class="card grid">
-    <div>
-      <label for="target">目標値</label>
-      <input id="target" type="number" min="1" step="1" value="100" />
-    </div>
-    <div>
-      <label for="current">現在値</label>
-      <input id="current" type="number" min="0" step="1" value="0" />
-    </div>
-    <div>
-      <label for="daily">1日の積み上げ</label>
-      <input id="daily" type="number" min="0" step="0.1" value="2" />
-    </div>
-    <div>
-      <label for="successRate">実行率（%）</label>
-      <input id="successRate" type="number" min="1" max="100" step="1" value="80" />
-    </div>
-  </div>
+    <section class="card grid">
+      <div>
+        <label for="target">目標値</label>
+        <input id="target" type="number" min="1" step="1" value="100">
+      </div>
+      <div>
+        <label for="current">現在値</label>
+        <input id="current" type="number" min="0" step="1" value="0">
+      </div>
+      <div>
+        <label for="daily">1日の積み上げ</label>
+        <input id="daily" type="number" min="0" step="0.1" value="2">
+      </div>
+      <div>
+        <label for="successRate">実行率（%）</label>
+        <input id="successRate" type="number" min="1" max="100" step="1" value="80">
+      </div>
+    </section>
 
-  <div class="card">
-    <div class="muted">到達まで</div>
-    <div class="big" id="days">-- 日</div>
-    <div class="muted" id="dateText">-</div>
-    <div id="note" class="muted">値を入力すると自動計算します。</div>
-  </div>
+    <section class="card">
+      <div class="muted">到達まで</div>
+      <div class="big" id="days">-- 日</div>
+      <div class="muted" id="dateText">-</div>
+      <div id="note" class="muted" aria-live="polite">値を入力すると自動計算します。</div>
+    </section>
 
-  <a href="./index.html">← メニューに戻る</a>
+    <nav class="nav" aria-label="page">
+      <a href="./index.html">← メニュー</a>
+      <a href="./season.html">← 前: 曜日・季節ダッシュボード</a>
+    </nav>
+  </main>
 
   <script>
     const targetEl = document.getElementById("target");
@@ -60,8 +61,30 @@
     const dateTextEl = document.getElementById("dateText");
     const noteEl = document.getElementById("note");
 
-    function clamp(value, min, max){
-      return Math.min(max, Math.max(min, value));
+    function clamp(value, min, max){ return Math.min(max, Math.max(min, value)); }
+
+    function saveInputs(){
+      const state = {
+        target: targetEl.value,
+        current: currentEl.value,
+        daily: dailyEl.value,
+        successRate: successRateEl.value
+      };
+      localStorage.setItem("sim-inputs", JSON.stringify(state));
+    }
+
+    function loadInputs(){
+      const raw = localStorage.getItem("sim-inputs");
+      if (!raw) return;
+      try {
+        const state = JSON.parse(raw);
+        if (state.target != null) targetEl.value = state.target;
+        if (state.current != null) currentEl.value = state.current;
+        if (state.daily != null) dailyEl.value = state.daily;
+        if (state.successRate != null) successRateEl.value = state.successRate;
+      } catch (_) {
+        localStorage.removeItem("sim-inputs");
+      }
     }
 
     function calc(){
@@ -99,7 +122,6 @@
       const days = Math.ceil(remain / effectiveDaily);
       const eta = new Date();
       eta.setDate(eta.getDate() + days);
-
       const y = eta.getFullYear();
       const m = String(eta.getMonth() + 1).padStart(2, "0");
       const d = String(eta.getDate()).padStart(2, "0");
@@ -111,9 +133,13 @@
     }
 
     [targetEl, currentEl, dailyEl, successRateEl].forEach(el => {
-      el.addEventListener("input", calc);
+      el.addEventListener("input", () => {
+        saveInputs();
+        calc();
+      });
     });
 
+    loadInputs();
     calc();
   </script>
 </body>

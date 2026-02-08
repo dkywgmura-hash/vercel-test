@@ -5,54 +5,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>時間感覚リセット</title>
   <style>
-    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.5;}
-    .card{border:1px solid #ddd; border-radius:12px; padding:16px; margin:12px 0;}
-    .big{font-size:32px; font-weight:700;}
-    .muted{color:#666;}
-    a{display:inline-block; margin-top:12px;}
+    :root{--bg:#f6f7fb;--card:#fff;--line:#dfe3eb;--text:#1e2430;--muted:#5f6777;--accent:#1f5eff;}
+    *{box-sizing:border-box;} body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);}
+    .wrap{max-width:860px;margin:0 auto;padding:20px 16px 40px;}
+    h1{margin:0 0 10px;font-size:28px;} .sub{color:var(--muted);margin:0 0 14px;}
+    .grid{display:grid;gap:12px;} .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;}
+    .big{font-size:34px;font-weight:800;} .muted{color:var(--muted);} .meta{font-size:13px;color:var(--muted);}
+    .nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;} .nav a{font-size:14px;color:var(--accent);text-decoration:none;}
+    @media (min-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));}.full{grid-column:1/-1;}}
   </style>
 </head>
 <body>
-  <h1>時間感覚リセット</h1>
-  <div class="card">
-    <div class="muted">いま</div>
-    <div class="big" id="now">--:--:--</div>
-  </div>
-  <div class="card">
-    <div class="muted">今日の残り</div>
-    <div class="big" id="remainToday">--</div>
-  </div>
-  <div class="card">
-    <div class="muted">今週の残り</div>
-    <div class="big" id="remainWeek">--</div>
-  </div>
-  <div class="card">
-    <div class="muted">広告枠（後でAdSense等）</div>
-    <div class="muted">ここにバナーを置く想定</div>
-  </div>
-  <a href="./index.html">← メニューに戻る</a>
+  <main class="wrap">
+    <h1>時間感覚リセット</h1>
+    <p class="sub">現在時刻と残り時間を固定表示して、判断の基準を取り戻すページです。</p>
+
+    <div class="grid">
+      <section class="card">
+        <div class="muted">いま</div>
+        <div class="big" id="now">--:--:--</div>
+      </section>
+      <section class="card">
+        <div class="muted">今日の残り</div>
+        <div class="big" id="remainToday">--</div>
+      </section>
+      <section class="card">
+        <div class="muted">今週の残り</div>
+        <div class="big" id="remainWeek">--</div>
+      </section>
+      <section class="card">
+        <div class="muted">更新頻度</div>
+        <div class="big">1秒ごと</div>
+        <div class="meta" id="todayDate">-</div>
+      </section>
+      <section class="card full">
+        <div class="muted">広告枠（後でAdSense等）</div>
+        <div class="meta">ここにバナーを置く想定</div>
+      </section>
+    </div>
+
+    <nav class="nav" aria-label="page">
+      <a href="./index.html">← メニュー</a>
+      <a href="./pause.html">次へ: 判断クッション →</a>
+    </nav>
+  </main>
+
   <script>
     function pad(n){return String(n).padStart(2,"0");}
+    const nowEl = document.getElementById("now");
+    const remainTodayEl = document.getElementById("remainToday");
+    const remainWeekEl = document.getElementById("remainWeek");
+    const todayDateEl = document.getElementById("todayDate");
+    const weekdays = ["日","月","火","水","木","金","土"];
+
     function update(){
       const d = new Date();
-      document.getElementById("now").textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-      // 今日の残り
+      nowEl.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      todayDateEl.textContent = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} (${weekdays[d.getDay()]})`;
+
       const end = new Date(d); end.setHours(23,59,59,999);
-      const ms = end - d;
-      const h = Math.floor(ms/3600000);
-      const m = Math.floor((ms%3600000)/60000);
-      document.getElementById("remainToday").textContent = `${h}時間 ${m}分`;
-      // 今週の残り（週末=日曜 23:59）
+      const ms = Math.max(0, end - d);
+      const h = Math.floor(ms / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      remainTodayEl.textContent = `${h}時間 ${m}分`;
+
       const endW = new Date(d);
-      const day = d.getDay(); // 0=日
-      const diffToSun = (7 - day) % 7; // 0なら今日が日曜
+      const day = d.getDay();
+      const diffToSun = (7 - day) % 7;
       endW.setDate(d.getDate() + diffToSun);
       endW.setHours(23,59,59,999);
-      const msW = endW - d;
-      const dW = Math.floor(msW/86400000);
-      const hW = Math.floor((msW%86400000)/3600000);
-      document.getElementById("remainWeek").textContent = `${dW}日 ${hW}時間`;
+      const msW = Math.max(0, endW - d);
+      const dW = Math.floor(msW / 86400000);
+      const hW = Math.floor((msW % 86400000) / 3600000);
+      remainWeekEl.textContent = `${dW}日 ${hW}時間`;
     }
+
     update();
     setInterval(update, 1000);
   </script>

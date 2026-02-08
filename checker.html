@@ -5,44 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Today Checker</title>
   <style>
-    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.6;}
-    .card{border:1px solid #ddd; border-radius:12px; padding:16px; margin:12px 0;}
-    .row{display:grid; gap:10px;}
-    .muted{color:#666;}
-    .big{font-size:28px; font-weight:700;}
-    .bar{height:12px; background:#eee; border-radius:999px; overflow:hidden;}
-    .fill{height:100%; width:0%; background:#111; transition:width .2s ease;}
-    label{display:block; padding:6px 0;}
-    button{font:inherit; padding:10px 12px; border:1px solid #111; border-radius:10px; background:#111; color:#fff; cursor:pointer;}
-    a{display:inline-block; margin-top:12px;}
+    :root{--bg:#f6f7fb;--card:#fff;--line:#dfe3eb;--text:#1e2430;--muted:#5f6777;--accent:#1f5eff;}
+    *{box-sizing:border-box;} body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);}
+    .wrap{max-width:860px;margin:0 auto;padding:20px 16px 40px;} h1{margin:0 0 8px;font-size:28px;} .sub{margin:0 0 14px;color:var(--muted);}
+    .card{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px;margin:12px 0;} .row{display:grid;gap:10px;}
+    .muted{color:var(--muted);} .big{font-size:30px;font-weight:800;} .bar{height:12px;background:#ebedf3;border-radius:999px;overflow:hidden;}
+    .fill{height:100%;width:0%;background:#111;transition:width .2s ease;} label{display:block;padding:6px 0;} input[type="checkbox"]{transform:translateY(1px);}
+    button{font:inherit;padding:10px 12px;border:1px solid #111;border-radius:10px;background:#111;color:#fff;cursor:pointer;}
+    .nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;} .nav a{font-size:14px;color:var(--accent);text-decoration:none;}
   </style>
 </head>
 <body>
-  <h1>Today Checker</h1>
+  <main class="wrap">
+    <h1>Today Checker</h1>
+    <p class="sub">今日の最低ラインを可視化して、継続を優先するためのチェックです。</p>
 
-  <div class="card">
-    <div class="muted">今日</div>
-    <div class="big" id="today">----</div>
-    <div class="muted" id="weekday">-</div>
-  </div>
+    <section class="card">
+      <div class="muted">今日</div>
+      <div class="big" id="today">----</div>
+      <div class="muted" id="weekday">-</div>
+    </section>
 
-  <div class="card row" id="checks">
-    <label><input type="checkbox" data-key="wake"> 起床後1時間以内に行動開始できた</label>
-    <label><input type="checkbox" data-key="focus"> 重要タスクを25分以上進めた</label>
-    <label><input type="checkbox" data-key="body"> 体を5分以上動かした</label>
-    <label><input type="checkbox" data-key="food"> 食事を整えて食べ過ぎを避けた</label>
-    <label><input type="checkbox" data-key="reflect"> 1行でも振り返りを書いた</label>
-  </div>
+    <section class="card row" id="checks">
+      <label><input type="checkbox" data-key="wake"> 起床後1時間以内に行動開始できた</label>
+      <label><input type="checkbox" data-key="focus"> 重要タスクを25分以上進めた</label>
+      <label><input type="checkbox" data-key="body"> 体を5分以上動かした</label>
+      <label><input type="checkbox" data-key="food"> 食事を整えて食べ過ぎを避けた</label>
+      <label><input type="checkbox" data-key="reflect"> 1行でも振り返りを書いた</label>
+    </section>
 
-  <div class="card row">
-    <div class="muted">達成率</div>
-    <div class="bar"><div id="fill" class="fill"></div></div>
-    <div id="score" class="big">0 / 5</div>
-    <div id="comment" class="muted">まず1つチェックを付けましょう。</div>
-    <button id="resetBtn" type="button">今日のチェックをリセット</button>
-  </div>
+    <section class="card row">
+      <div class="muted">達成率</div>
+      <div class="bar"><div id="fill" class="fill"></div></div>
+      <div id="score" class="big">0 / 5</div>
+      <div id="comment" class="muted" aria-live="polite">まず1つチェックを付けましょう。</div>
+      <button id="resetBtn" type="button">今日のチェックをリセット</button>
+    </section>
 
-  <a href="./index.html">← メニューに戻る</a>
+    <nav class="nav" aria-label="page">
+      <a href="./index.html">← メニュー</a>
+      <a href="./pause.html">← 前: 判断クッション</a>
+      <a href="./season.html">次: 曜日・季節ダッシュボード →</a>
+    </nav>
+  </main>
 
   <script>
     const todayEl = document.getElementById("today");
@@ -66,17 +71,17 @@
     function load(){
       const saved = localStorage.getItem(key);
       if (!saved) return;
-      const data = JSON.parse(saved);
-      boxes.forEach(box => {
-        box.checked = Boolean(data[box.dataset.key]);
-      });
+      try {
+        const data = JSON.parse(saved);
+        boxes.forEach(box => { box.checked = Boolean(data[box.dataset.key]); });
+      } catch (_) {
+        localStorage.removeItem(key);
+      }
     }
 
     function save(){
       const data = {};
-      boxes.forEach(box => {
-        data[box.dataset.key] = box.checked;
-      });
+      boxes.forEach(box => { data[box.dataset.key] = box.checked; });
       localStorage.setItem(key, JSON.stringify(data));
     }
 
@@ -87,28 +92,16 @@
       fillEl.style.width = `${pct}%`;
       scoreEl.textContent = `${checked} / ${total}`;
 
-      if (checked === total) {
-        commentEl.textContent = "フル達成です。明日の自分が楽になります。";
-      } else if (checked >= 3) {
-        commentEl.textContent = "合格ライン。あと1つ積むと安定しやすいです。";
-      } else if (checked >= 1) {
-        commentEl.textContent = "積み上げ中。小さく続けるのが最短です。";
-      } else {
-        commentEl.textContent = "まず1つチェックを付けましょう。";
-      }
+      if (checked === total) commentEl.textContent = "フル達成です。明日の自分が楽になります。";
+      else if (checked >= 3) commentEl.textContent = "合格ライン。あと1つ積むと安定しやすいです。";
+      else if (checked >= 1) commentEl.textContent = "積み上げ中。小さく続けるのが最短です。";
+      else commentEl.textContent = "まず1つチェックを付けましょう。";
     }
 
-    boxes.forEach(box => {
-      box.addEventListener("change", () => {
-        save();
-        update();
-      });
-    });
+    boxes.forEach(box => box.addEventListener("change", () => { save(); update(); }));
 
     resetBtn.addEventListener("click", () => {
-      boxes.forEach(box => {
-        box.checked = false;
-      });
+      boxes.forEach(box => { box.checked = false; });
       localStorage.removeItem(key);
       update();
     });

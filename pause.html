@@ -5,87 +5,116 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>判断クッション</title>
   <style>
-    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.6;}
-    .card{border:1px solid #ddd; border-radius:12px; padding:16px; margin:12px 0;}
-    .row{display:grid; gap:10px;}
-    label{font-weight:600;}
-    input,select,button{font:inherit; padding:10px; border:1px solid #ccc; border-radius:10px;}
-    button{cursor:pointer; background:#111; color:#fff; border-color:#111;}
-    .muted{color:#666;}
-    .big{font-size:28px; font-weight:700;}
-    .ok{color:#0a7a2f;}
-    .warn{color:#a64200;}
-    a{display:inline-block; margin-top:12px;}
+    :root{--bg:#f6f7fb;--card:#fff;--line:#dfe3eb;--text:#1e2430;--muted:#5f6777;--accent:#1f5eff;--ok:#0a7a2f;--warn:#a64200;}
+    *{box-sizing:border-box;} body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);}
+    .wrap{max-width:860px;margin:0 auto;padding:20px 16px 40px;} h1{margin:0 0 8px;font-size:28px;} .sub{margin:0 0 14px;color:var(--muted);}
+    .card{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px;margin:12px 0;} .row{display:grid;gap:10px;}
+    label{font-weight:600;} input,select,button{font:inherit;padding:10px;border:1px solid #cfd6e4;border-radius:10px;}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;} button{cursor:pointer;background:#111;color:#fff;border-color:#111;} button.secondary{background:#fff;color:#111;}
+    .big{font-size:30px;font-weight:800;} .muted{color:var(--muted);} .ok{color:var(--ok);} .warn{color:var(--warn);} .nav{display:flex;gap:8px;flex-wrap:wrap;}
+    .nav a{font-size:14px;color:var(--accent);text-decoration:none;}
   </style>
 </head>
 <body>
-  <h1>判断クッション</h1>
+  <main class="wrap">
+    <h1>判断クッション</h1>
+    <p class="sub">短い待機とチェックで、衝動を「実行」か「保留」に切り分けます。</p>
 
-  <div class="card row">
-    <label for="action">いまやろうとしていること</label>
-    <input id="action" type="text" placeholder="例: ついSNSを開く / 衝動買いする" />
+    <section class="card row">
+      <label for="action">いまやろうとしていること</label>
+      <input id="action" type="text" placeholder="例: ついSNSを開く / 衝動買いする">
 
-    <label for="urgency">緊急度</label>
-    <select id="urgency">
-      <option value="high">高い（今すぐ必要）</option>
-      <option value="mid" selected>中くらい</option>
-      <option value="low">低い（急がなくてよい）</option>
-    </select>
-  </div>
+      <label for="urgency">緊急度</label>
+      <select id="urgency">
+        <option value="high">高い（今すぐ必要）</option>
+        <option value="mid" selected>中くらい</option>
+        <option value="low">低い（急がなくてよい）</option>
+      </select>
+    </section>
 
-  <div class="card">
-    <div class="muted">まず30秒だけ待つ</div>
-    <div class="big" id="timer">30</div>
-    <button id="startBtn" type="button">30秒スタート</button>
-  </div>
+    <section class="card">
+      <div class="muted">まず30秒だけ待つ</div>
+      <div class="big" id="timer" aria-live="polite">30</div>
+      <div class="btns">
+        <button id="startBtn" type="button">30秒スタート</button>
+        <button id="resetBtn" type="button" class="secondary">リセット</button>
+      </div>
+    </section>
 
-  <div class="card row">
-    <label><input id="q1" type="checkbox"> これは今日の目的に直結している</label>
-    <label><input id="q2" type="checkbox"> 5分待つと価値が下がる</label>
-    <label><input id="q3" type="checkbox"> 明日の自分もこの判断を支持する</label>
-    <button id="judgeBtn" type="button">判定する</button>
-    <div id="result" class="muted">30秒待ってから判定すると、衝動を下げやすくなります。</div>
-  </div>
+    <section class="card row">
+      <label><input id="q1" type="checkbox"> これは今日の目的に直結している</label>
+      <label><input id="q2" type="checkbox"> 5分待つと価値が下がる</label>
+      <label><input id="q3" type="checkbox"> 明日の自分もこの判断を支持する</label>
+      <button id="judgeBtn" type="button">判定する</button>
+      <div id="result" class="muted" aria-live="polite">30秒待ってから判定すると、衝動を下げやすくなります。</div>
+    </section>
 
-  <a href="./index.html">← メニューに戻る</a>
+    <nav class="nav" aria-label="page">
+      <a href="./index.html">← メニュー</a>
+      <a href="./time.html">← 前: 時間感覚リセット</a>
+      <a href="./checker.html">次: Today Checker →</a>
+    </nav>
+  </main>
 
   <script>
     const timerEl = document.getElementById("timer");
     const startBtn = document.getElementById("startBtn");
+    const resetBtn = document.getElementById("resetBtn");
     const judgeBtn = document.getElementById("judgeBtn");
     const resultEl = document.getElementById("result");
     const urgencyEl = document.getElementById("urgency");
     const actionEl = document.getElementById("action");
-    const checks = ["q1", "q2", "q3"].map(id => document.getElementById(id));
+    const checks = ["q1","q2","q3"].map(id => document.getElementById(id));
 
     let remaining = 30;
     let timerId = null;
     let waited = false;
 
-    function renderTimer(){
-      timerEl.textContent = String(remaining);
+    function renderTimer(){ timerEl.textContent = String(remaining); }
+
+    function stopTimer(){
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+      startBtn.disabled = false;
     }
 
-    startBtn.addEventListener("click", () => {
-      if (timerId) {
-        return;
-      }
+    function softReset(){
+      stopTimer();
       remaining = 30;
       waited = false;
       renderTimer();
       resultEl.className = "muted";
+      resultEl.textContent = "30秒待ってから判定すると、衝動を下げやすくなります。";
+    }
+
+    startBtn.addEventListener("click", () => {
+      if (timerId) return;
+      remaining = 30;
+      waited = false;
+      startBtn.disabled = true;
+      renderTimer();
+      resultEl.className = "muted";
       resultEl.textContent = "30秒待機中...";
+
       timerId = setInterval(() => {
         remaining -= 1;
         renderTimer();
         if (remaining <= 0) {
-          clearInterval(timerId);
-          timerId = null;
+          stopTimer();
           waited = true;
           resultEl.className = "muted";
           resultEl.textContent = "待機完了。チェックして判定してください。";
         }
       }, 1000);
+    });
+
+    resetBtn.addEventListener("click", () => {
+      checks.forEach(el => { el.checked = false; });
+      actionEl.value = "";
+      urgencyEl.value = "mid";
+      softReset();
     });
 
     judgeBtn.addEventListener("click", () => {
@@ -108,7 +137,7 @@
       }
     });
 
-    renderTimer();
+    softReset();
   </script>
 </body>
 </html>

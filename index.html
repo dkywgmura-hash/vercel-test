@@ -5,33 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kamado Apps</title>
   <style>
-    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.6;}
-    .card{border:1px solid #ddd; border-radius:12px; padding:16px; margin:12px 0;}
-    a{font-size:18px; font-weight:600; text-decoration:none;}
-    .muted{color:#666;}
+    :root{--bg:#f6f7fb;--card:#ffffff;--text:#1e2430;--muted:#5f6777;--line:#dfe3eb;--accent:#1f5eff;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;}
+    .wrap{max-width:880px;margin:0 auto;padding:20px 16px 40px;}
+    h1{margin:0 0 6px;font-size:30px;}
+    .lead{margin:0 0 16px;color:var(--muted);}
+    .grid{display:grid;gap:12px;}
+    .card{display:block;border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px;text-decoration:none;color:inherit;}
+    .card:hover{border-color:#c7cedb;}
+    .title{font-size:18px;font-weight:700;color:var(--accent);}
+    .muted{color:var(--muted);}
+    .meta{font-size:13px;color:var(--muted);margin-top:10px;}
   </style>
 </head>
 <body>
-  <h1>Kamado Apps</h1>
-  <div class="card">
-    <a href="./time.html">① 時間感覚リセット</a>
-    <div class="muted">いま・今日の残り・今週の残りを見える化</div>
-  </div>
-  <div class="card">
-    <a href="./pause.html">② 判断クッション</a>
-    <div class="muted">30秒待機と3つの質問で、衝動判断を抑える</div>
-  </div>
-  <div class="card">
-    <a href="./checker.html">③ Today Checker</a>
-    <div class="muted">今日の行動を5項目で記録して達成率を可視化</div>
-  </div>
-  <div class="card">
-    <a href="./season.html">④ 曜日・季節ダッシュボード</a>
-    <div class="muted">曜日・月・季節・年進捗を1画面で把握</div>
-  </div>
-  <div class="card">
-    <a href="./sim.html">⑤ 軽量シミュレーター</a>
-    <div class="muted">積み上げ速度と実行率から到達日を試算</div>
-  </div>
+  <main class="wrap">
+    <h1>Kamado Apps</h1>
+    <p class="lead">生活リズムと意思決定を整える5つのミニアプリ</p>
+
+    <div class="grid">
+      <a class="card" href="./time.html">
+        <div class="title">① 時間感覚リセット</div>
+        <div class="muted">いま・今日の残り・今週の残りを見える化</div>
+      </a>
+
+      <a class="card" href="./pause.html">
+        <div class="title">② 判断クッション</div>
+        <div class="muted">30秒待機と3つの質問で、衝動判断を抑える</div>
+      </a>
+
+      <a class="card" href="./checker.html">
+        <div class="title">③ Today Checker</div>
+        <div class="muted">今日の行動を5項目で記録して達成率を可視化</div>
+      </a>
+
+      <a class="card" href="./season.html">
+        <div class="title">④ 曜日・季節ダッシュボード</div>
+        <div class="muted">曜日・月・季節・年進捗を1画面で把握</div>
+      </a>
+
+      <a class="card" href="./sim.html">
+        <div class="title">⑤ 軽量シミュレーター</div>
+        <div class="muted">積み上げ速度と実行率から到達日を試算</div>
+      </a>
+    </div>
+
+    <p class="meta">v1.1 - 5/5 apps available</p>
+  </main>
 </body>
 </html>
