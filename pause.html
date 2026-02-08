@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>判断クッション</title>
+  <style>
+    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.6;}
+    .card{border:1px solid #ddd; border-radius:12px; padding:16px; margin:12px 0;}
+    .row{display:grid; gap:10px;}
+    label{font-weight:600;}
+    input,select,button{font:inherit; padding:10px; border:1px solid #ccc; border-radius:10px;}
+    button{cursor:pointer; background:#111; color:#fff; border-color:#111;}
+    .muted{color:#666;}
+    .big{font-size:28px; font-weight:700;}
+    .ok{color:#0a7a2f;}
+    .warn{color:#a64200;}
+    a{display:inline-block; margin-top:12px;}
+  </style>
+</head>
+<body>
+  <h1>判断クッション</h1>
+
+  <div class="card row">
+    <label for="action">いまやろうとしていること</label>
+    <input id="action" type="text" placeholder="例: ついSNSを開く / 衝動買いする" />
+
+    <label for="urgency">緊急度</label>
+    <select id="urgency">
+      <option value="high">高い（今すぐ必要）</option>
+      <option value="mid" selected>中くらい</option>
+      <option value="low">低い（急がなくてよい）</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="muted">まず30秒だけ待つ</div>
+    <div class="big" id="timer">30</div>
+    <button id="startBtn" type="button">30秒スタート</button>
+  </div>
+
+  <div class="card row">
+    <label><input id="q1" type="checkbox"> これは今日の目的に直結している</label>
+    <label><input id="q2" type="checkbox"> 5分待つと価値が下がる</label>
+    <label><input id="q3" type="checkbox"> 明日の自分もこの判断を支持する</label>
+    <button id="judgeBtn" type="button">判定する</button>
+    <div id="result" class="muted">30秒待ってから判定すると、衝動を下げやすくなります。</div>
+  </div>
+
+  <a href="./index.html">← メニューに戻る</a>
+
+  <script>
+    const timerEl = document.getElementById("timer");
+    const startBtn = document.getElementById("startBtn");
+    const judgeBtn = document.getElementById("judgeBtn");
+    const resultEl = document.getElementById("result");
+    const urgencyEl = document.getElementById("urgency");
+    const actionEl = document.getElementById("action");
+    const checks = ["q1", "q2", "q3"].map(id => document.getElementById(id));
+
+    let remaining = 30;
+    let timerId = null;
+    let waited = false;
+
+    function renderTimer(){
+      timerEl.textContent = String(remaining);
+    }
+
+    startBtn.addEventListener("click", () => {
+      if (timerId) {
+        return;
+      }
+      remaining = 30;
+      waited = false;
+      renderTimer();
+      resultEl.className = "muted";
+      resultEl.textContent = "30秒待機中...";
+      timerId = setInterval(() => {
+        remaining -= 1;
+        renderTimer();
+        if (remaining <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          waited = true;
+          resultEl.className = "muted";
+          resultEl.textContent = "待機完了。チェックして判定してください。";
+        }
+      }, 1000);
+    });
+
+    judgeBtn.addEventListener("click", () => {
+      const yesCount = checks.filter(el => el.checked).length;
+      const urgency = urgencyEl.value;
+      const action = actionEl.value.trim() || "この行動";
+
+      if (!waited) {
+        resultEl.className = "warn";
+        resultEl.textContent = "まず30秒だけ待ってから判定してください。";
+        return;
+      }
+
+      if ((urgency === "high" && yesCount >= 2) || yesCount === 3) {
+        resultEl.className = "ok";
+        resultEl.textContent = `判定: 実行してOK。${action}を短く終えて、次の優先タスクに戻りましょう。`;
+      } else {
+        resultEl.className = "warn";
+        resultEl.textContent = `判定: いったん保留。${action}は30分後に再評価しましょう。`;
+      }
+    });
+
+    renderTimer();
+  </script>
+</body>
+</html>
