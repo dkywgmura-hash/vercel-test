@@ -12,7 +12,7 @@
     .grid{display:grid;gap:12px;} .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;}
     .big{font-size:34px;font-weight:800;} .muted{color:var(--muted);} .meta{font-size:13px;color:var(--muted);}
     .nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;} .nav a{font-size:14px;color:var(--accent);text-decoration:none;}
-    @media (min-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));}.full{grid-column:1/-1;}}
+    @media (min-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
   </style>
   <script src="./ga.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4504846480246219" crossorigin="anonymous"></script>
@@ -40,13 +40,9 @@
         <div class="big">1秒ごと</div>
         <div class="meta" id="todayDate">-</div>
       </section>
-      <section class="card full">
-        <div class="muted">広告枠（後でAdSense等）</div>
-        <div class="meta">ここにバナーを置く想定</div>
-      </section>
     </div>
 
-        <section class="card">
+    <section class="card">
       <div class="muted">スポンサーリンク</div>
       <ins class="adsbygoogle"
            style="display:block"
@@ -58,6 +54,7 @@
         (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
     </section>
+
     <nav class="nav" aria-label="page">
       <a href="./index.html">← メニュー</a>
       <a href="./pause.html">次へ: 判断クッション →</a>
@@ -99,8 +96,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
