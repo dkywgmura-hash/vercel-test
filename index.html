@@ -3,18 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vercel Kamado Test</title>
+  <title>Kamado Apps</title>
+  <style>
+    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.6;}
+    .card{border:1px solid #ddd; border-radius:12px; padding:16px; margin:12px 0;}
+    a{font-size:18px; font-weight:600; text-decoration:none;}
+    .muted{color:#666;}
+  </style>
 </head>
 <body>
-  <h1 id="title">Hello Vercel v2</h1>
-  <p id="msg">Webアプリを公開できました。</p>
-  <button id="btn">クリック</button>
-  <script>
-    const btn = document.getElementById("btn");
-    const msg = document.getElementById("msg");
-    btn.addEventListener("click", () => {
-      msg.textContent = "動きました ✅（" + new Date().toLocaleString() + "）";
-    });
-  </script>
+  <h1>Kamado Apps</h1>
+  <div class="card">
+    <a href="./time.html">① 時間感覚リセット</a>
+    <div class="muted">いま・今日の残り・今週の残りを見える化</div>
+  </div>
+  <div class="card"><span class="muted">② 判断クッション（次に追加）</span></div>
+  <div class="card"><span class="muted">③ Today Checker（次に追加）</span></div>
+  <div class="card"><span class="muted">④ 曜日・季節ダッシュボード（次に追加）</span></div>
+  <div class="card"><span class="muted">⑤ 軽量シミュレーター（次に追加）</span></div>
 </body>
 </html>

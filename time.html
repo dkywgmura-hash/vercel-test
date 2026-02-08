@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>時間感覚リセット</title>
+  <style>
+    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.5;}
+    .card{border:1px solid #ddd; border-radius:12px; padding:16px; margin:12px 0;}
+    .big{font-size:32px; font-weight:700;}
+    .muted{color:#666;}
+    a{display:inline-block; margin-top:12px;}
+  </style>
+</head>
+<body>
+  <h1>時間感覚リセット</h1>
+  <div class="card">
+    <div class="muted">いま</div>
+    <div class="big" id="now">--:--:--</div>
+  </div>
+  <div class="card">
+    <div class="muted">今日の残り</div>
+    <div class="big" id="remainToday">--</div>
+  </div>
+  <div class="card">
+    <div class="muted">今週の残り</div>
+    <div class="big" id="remainWeek">--</div>
+  </div>
+  <div class="card">
+    <div class="muted">広告枠（後でAdSense等）</div>
+    <div class="muted">ここにバナーを置く想定</div>
+  </div>
+  <a href="./index.html">← メニューに戻る</a>
+  <script>
+    function pad(n){return String(n).padStart(2,"0");}
+    function update(){
+      const d = new Date();
+      document.getElementById("now").textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      // 今日の残り
+      const end = new Date(d); end.setHours(23,59,59,999);
+      const ms = end - d;
+      const h = Math.floor(ms/3600000);
+      const m = Math.floor((ms%3600000)/60000);
+      document.getElementById("remainToday").textContent = `${h}時間 ${m}分`;
+      // 今週の残り（週末=日曜 23:59）
+      const endW = new Date(d);
+      const day = d.getDay(); // 0=日
+      const diffToSun = (7 - day) % 7; // 0なら今日が日曜
+      endW.setDate(d.getDate() + diffToSun);
+      endW.setHours(23,59,59,999);
+      const msW = endW - d;
+      const dW = Math.floor(msW/86400000);
+      const hW = Math.floor((msW%86400000)/3600000);
+      document.getElementById("remainWeek").textContent = `${dW}日 ${hW}時間`;
+    }
+    update();
+    setInterval(update, 1000);
+  </script>
+</body>
+</html>
