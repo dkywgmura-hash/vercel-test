@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>軽量シミュレーター</title>
+  <style>
+    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.6;}
+    .card{border:1px solid #ddd; border-radius:12px; padding:16px; margin:12px 0;}
+    .grid{display:grid; gap:10px;}
+    label{font-weight:600;}
+    input{font:inherit; padding:10px; border:1px solid #ccc; border-radius:10px; width:100%; box-sizing:border-box;}
+    .big{font-size:30px; font-weight:700;}
+    .muted{color:#666;}
+    .warn{color:#a64200;}
+    .ok{color:#0a7a2f;}
+    a{display:inline-block; margin-top:12px;}
+    @media (min-width:720px){
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    }
+  </style>
+</head>
+<body>
+  <h1>軽量シミュレーター</h1>
+
+  <div class="card grid">
+    <div>
+      <label for="target">目標値</label>
+      <input id="target" type="number" min="1" step="1" value="100" />
+    </div>
+    <div>
+      <label for="current">現在値</label>
+      <input id="current" type="number" min="0" step="1" value="0" />
+    </div>
+    <div>
+      <label for="daily">1日の積み上げ</label>
+      <input id="daily" type="number" min="0" step="0.1" value="2" />
+    </div>
+    <div>
+      <label for="successRate">実行率（%）</label>
+      <input id="successRate" type="number" min="1" max="100" step="1" value="80" />
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="muted">到達まで</div>
+    <div class="big" id="days">-- 日</div>
+    <div class="muted" id="dateText">-</div>
+    <div id="note" class="muted">値を入力すると自動計算します。</div>
+  </div>
+
+  <a href="./index.html">← メニューに戻る</a>
+
+  <script>
+    const targetEl = document.getElementById("target");
+    const currentEl = document.getElementById("current");
+    const dailyEl = document.getElementById("daily");
+    const successRateEl = document.getElementById("successRate");
+    const daysEl = document.getElementById("days");
+    const dateTextEl = document.getElementById("dateText");
+    const noteEl = document.getElementById("note");
+
+    function clamp(value, min, max){
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function calc(){
+      const target = Number(targetEl.value);
+      const current = Number(currentEl.value);
+      const daily = Number(dailyEl.value);
+      const rate = clamp(Number(successRateEl.value), 1, 100) / 100;
+
+      if (!Number.isFinite(target) || !Number.isFinite(current) || !Number.isFinite(daily) || !Number.isFinite(rate)) {
+        daysEl.textContent = "-- 日";
+        dateTextEl.textContent = "-";
+        noteEl.className = "warn";
+        noteEl.textContent = "数値を正しく入力してください。";
+        return;
+      }
+
+      if (target <= current) {
+        daysEl.textContent = "0 日";
+        dateTextEl.textContent = "すでに目標達成済みです。";
+        noteEl.className = "ok";
+        noteEl.textContent = "次の目標を設定して継続しましょう。";
+        return;
+      }
+
+      const effectiveDaily = daily * rate;
+      if (effectiveDaily <= 0) {
+        daysEl.textContent = "∞";
+        dateTextEl.textContent = "到達日を計算できません。";
+        noteEl.className = "warn";
+        noteEl.textContent = "1日の積み上げを0より大きく設定してください。";
+        return;
+      }
+
+      const remain = target - current;
+      const days = Math.ceil(remain / effectiveDaily);
+      const eta = new Date();
+      eta.setDate(eta.getDate() + days);
+
+      const y = eta.getFullYear();
+      const m = String(eta.getMonth() + 1).padStart(2, "0");
+      const d = String(eta.getDate()).padStart(2, "0");
+
+      daysEl.textContent = `${days} 日`;
+      dateTextEl.textContent = `到達見込み日: ${y}-${m}-${d}`;
+      noteEl.className = "muted";
+      noteEl.textContent = `実効積み上げ: 1日あたり ${effectiveDaily.toFixed(2)}（= 積み上げ × 実行率）`;
+    }
+
+    [targetEl, currentEl, dailyEl, successRateEl].forEach(el => {
+      el.addEventListener("input", calc);
+    });
+
+    calc();
+  </script>
+</body>
+</html>
