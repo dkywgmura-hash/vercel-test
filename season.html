@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>曜日・季節ダッシュボード</title>
+  <style>
+    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px; line-height:1.6;}
+    .grid{display:grid; gap:12px;}
+    .card{border:1px solid #ddd; border-radius:12px; padding:16px;}
+    .muted{color:#666;}
+    .big{font-size:30px; font-weight:700;}
+    .bar{height:12px; background:#eee; border-radius:999px; overflow:hidden;}
+    .fill{height:100%; width:0%; background:#111;}
+    a{display:inline-block; margin-top:12px;}
+    @media (min-width: 720px){
+      .grid{grid-template-columns:repeat(2, minmax(0, 1fr));}
+    }
+  </style>
+</head>
+<body>
+  <h1>曜日・季節ダッシュボード</h1>
+
+  <div class="grid">
+    <div class="card">
+      <div class="muted">今日</div>
+      <div class="big" id="today">----</div>
+      <div id="weekday" class="muted">-</div>
+    </div>
+
+    <div class="card">
+      <div class="muted">今月</div>
+      <div class="big" id="monthLabel">-</div>
+      <div id="monthProgress" class="muted">-</div>
+    </div>
+
+    <div class="card">
+      <div class="muted">季節</div>
+      <div class="big" id="season">-</div>
+      <div id="seasonHint" class="muted">-</div>
+    </div>
+
+    <div class="card">
+      <div class="muted">今年の進捗</div>
+      <div class="bar"><div id="yearFill" class="fill"></div></div>
+      <div id="yearText" class="big">0%</div>
+      <div id="leftText" class="muted">-</div>
+    </div>
+  </div>
+
+  <a href="./index.html">← メニューに戻る</a>
+
+  <script>
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    const date = d.getDate();
+
+    const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+    const todayEl = document.getElementById("today");
+    const weekdayEl = document.getElementById("weekday");
+    const monthLabelEl = document.getElementById("monthLabel");
+    const monthProgressEl = document.getElementById("monthProgress");
+    const seasonEl = document.getElementById("season");
+    const seasonHintEl = document.getElementById("seasonHint");
+    const yearFillEl = document.getElementById("yearFill");
+    const yearTextEl = document.getElementById("yearText");
+    const leftTextEl = document.getElementById("leftText");
+
+    function getSeason(month){
+      if (month >= 3 && month <= 5) return ["春", "立ち上げに向く時期。新しい習慣を1つ増やす。"];
+      if (month >= 6 && month <= 8) return ["夏", "消耗しやすい時期。短時間集中と休息をセットにする。"];
+      if (month >= 9 && month <= 11) return ["秋", "整える時期。進捗の棚卸しと改善を回す。"];
+      return ["冬", "蓄える時期。無理せず再現性の高い行動を続ける。"];
+    }
+
+    const mm = String(m).padStart(2, "0");
+    const dd = String(date).padStart(2, "0");
+    todayEl.textContent = `${y}-${mm}-${dd}`;
+    weekdayEl.textContent = `(${weekdays[d.getDay()]})`;
+
+    const daysInMonth = new Date(y, m, 0).getDate();
+    monthLabelEl.textContent = `${m}月`;
+    monthProgressEl.textContent = `${date} / ${daysInMonth}日 経過`;
+
+    const [seasonName, seasonHint] = getSeason(m);
+    seasonEl.textContent = seasonName;
+    seasonHintEl.textContent = seasonHint;
+
+    const start = new Date(y, 0, 1);
+    const end = new Date(y, 11, 31, 23, 59, 59, 999);
+    const elapsedMs = d - start;
+    const totalMs = end - start;
+    const pct = Math.max(0, Math.min(100, Math.round((elapsedMs / totalMs) * 100)));
+    yearFillEl.style.width = `${pct}%`;
+    yearTextEl.textContent = `${pct}%`;
+
+    const leftDays = Math.ceil((end - d) / 86400000);
+    leftTextEl.textContent = `今年の残り: ${leftDays}日`;
+  </script>
+</body>
+</html>
